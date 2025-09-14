@@ -1,0 +1,7 @@
+# Netlify redirects file
+# Redirect root to main page
+/ /index.html 200
+# Handle success page
+/success /success.html 200
+# Fallback for any missing pages
+/* /index.html 404
