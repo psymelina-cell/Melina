@@ -279,4 +279,77 @@ document.addEventListener("DOMContentLoaded", function () {
     "app-youtube-iframe",
     "KE5woKG04LM"
   );
+
+  // --- Gestion du formulaire Netlify ---
+  const contactForm = document.getElementById("contact-form");
+  if (contactForm) {
+    contactForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(contactForm);
+      const submitButton = contactForm.querySelector('button[type="submit"]');
+      const originalButtonText = submitButton ? submitButton.textContent : '';
+      
+      // Indiquer que l'envoi est en cours
+      if (submitButton) {
+        submitButton.textContent = "Envoi en cours...";
+        submitButton.disabled = true;
+      }
+      
+      fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams(formData).toString()
+      })
+      .then(() => {
+        // Succès - afficher le message de confirmation
+        const successMessage = document.createElement("div");
+        successMessage.innerHTML = `
+          <div class="bg-green-50 border border-green-200 rounded-xl p-6 mb-6">
+            <div class="flex items-center">
+              <i class="fas fa-check-circle text-green-600 text-xl mr-3"></i>
+              <div>
+                <h3 class="font-medium text-green-800">Message envoyé avec succès !</h3>
+                <p class="text-green-700 text-sm mt-1">Mélina vous répondra dans les plus brefs délais.</p>
+              </div>
+            </div>
+          </div>
+        `;
+        contactForm.parentNode.insertBefore(successMessage, contactForm);
+        contactForm.reset();
+        
+        // Masquer le message après 10 secondes
+        setTimeout(() => {
+          successMessage.remove();
+        }, 10000);
+      })
+      .catch((error) => {
+        // Erreur - afficher le message d'erreur
+        const errorMessage = document.createElement("div");
+        errorMessage.innerHTML = `
+          <div class="bg-red-50 border border-red-200 rounded-xl p-6 mb-6">
+            <div class="flex items-center">
+              <i class="fas fa-exclamation-circle text-red-600 text-xl mr-3"></i>
+              <div>
+                <h3 class="font-medium text-red-800">Erreur lors de l'envoi</h3>
+                <p class="text-red-700 text-sm mt-1">Veuillez réessayer ou contacter directement au 06 95 85 21 02</p>
+              </div>
+            </div>
+          </div>
+        `;
+        contactForm.parentNode.insertBefore(errorMessage, contactForm);
+        
+        setTimeout(() => {
+          errorMessage.remove();
+        }, 10000);
+      })
+      .finally(() => {
+        // Remettre le bouton à son état initial
+        if (submitButton) {
+          submitButton.textContent = originalButtonText;
+          submitButton.disabled = false;
+        }
+      });
+    });
+  }
 });
